@@ -8,7 +8,7 @@ plugins {
 	kotlin("plugin.jpa") version "1.9.21"
 }
 
-group = "com.ptit"
+group = "com.ptit.insurance"
 version = "0.0.1-SNAPSHOT"
 
 java {
@@ -31,6 +31,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-web-services")
+	implementation("com.auth0:java-jwt:4.4.0")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	compileOnly("org.projectlombok:lombok")
