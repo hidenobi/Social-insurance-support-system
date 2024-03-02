@@ -23,13 +23,13 @@ public class User implements UserDetails {
     @NotNull("Mã y tế không được null")
     private String insuranceCode;
     @NotNull("Mật khẩu không được null")
-    private String passworđ;
+    private String password;
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    public User(String insuranceCode,String passworđ){
+    public User(String insuranceCode,String password){
         this.insuranceCode=insuranceCode;
-        this.passworđ=passworđ;
+        this.password=password;
     }
 
     @Override
@@ -39,7 +39,7 @@ public class User implements UserDetails {
 
     @Override
     public String getPassword() {
-        return this.passworđ;
+        return this.password;
     }
 
     @Override
