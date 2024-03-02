@@ -10,7 +10,7 @@ import javax.sql.DataSource;
 public class DatabaseConfig {
     @Bean
     public DataSource getDataSource() {
-        DataSourceBuilder dataSourceBuilder = DataSourceBuilder.create();
+        DataSourceBuilder<?> dataSourceBuilder = DataSourceBuilder.create();
         dataSourceBuilder.driverClassName("com.mysql.cj.jdbc.Driver");
         dataSourceBuilder.url("jdbc:mysql://localhost:3306/insurance?useSSL=false&serverTimezone=UTC");
         dataSourceBuilder.username("root");

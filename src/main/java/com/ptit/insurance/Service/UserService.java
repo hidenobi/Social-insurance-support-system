@@ -30,4 +30,8 @@ public class UserService {
         }
     }
 
+    public User findUserByInsuranceCode(String insuranceCode){
+        return userReponsitory.findByInsuranceCode(insuranceCode).get();
+    }
+
 }
