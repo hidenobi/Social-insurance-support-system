@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Cascade;
 import org.jetbrains.annotations.NotNull;
 
 @Data
@@ -40,6 +39,46 @@ public class Personal {
     private float exemptionLevel;
     private String timeMethodPayment;
     private int income;
-
-
+    public boolean Check(){
+        System.out.println("Check: "+getIdPersonal());
+        String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+        if(getFullName().isEmpty()) {
+            System.out.println("FullName is empty");
+            return false;
+        }
+        if(getIdPersonal().isEmpty()){
+            System.out.println("IdPersonal is empty");
+            return false;
+        }
+        if(getInsuranceCode().isEmpty()){
+            System.out.println("InsuranceCode is empty");
+            return false;
+        }
+        if(getEmail().isEmpty()||!getEmail().matches(emailRegex))
+        {
+            System.out.println("Email is not format");
+            return false;
+        }
+        if(getPhoneNumber().isEmpty()){
+            System.out.println("PhoneNumber is empty");
+            return false;
+        }
+        if(getImgPersonal().isEmpty()){
+            System.out.println("ImgPersonal is empty");
+            return false;
+        }
+        if(getImgBackId().isEmpty()){
+            System.out.println("ImgBackId is empty");
+            return false;
+        }
+        if(getImgFrontId().isEmpty()){
+            System.out.println("ImgFrontId is empty");
+            return false;
+        }
+       if(getAddress().isEmpty()){
+           System.out.println("Address is empty");
+           return false;
+       }
+        return true;
+    }
 }

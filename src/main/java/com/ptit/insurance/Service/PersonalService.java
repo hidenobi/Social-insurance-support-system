@@ -10,16 +10,24 @@ public class PersonalService {
     @Autowired
     private PersonalReponsitory personalReponsitory;
 
-    public String Save(Personal personal){
+    public void Delete(Personal personal){
+        if(personalReponsitory.findByInsuranceCode(personal.getInsuranceCode())!=null)
+            personalReponsitory.delete(personal);
+    }
+
+
+    public boolean Save(Personal personal){
     try {
         personalReponsitory.save(personal);
-        return "success";
+        System.out.println("Save personal success");
+        return true;
     }catch (Exception e){
-        return e.getMessage();
-        }
+        System.out.println(e.getMessage());
+        return false;
+    }
     }
 
     public Personal findByInsuranceCode(String insuranceCode){
-        return personalReponsitory.findFirstByInsuranceCode(insuranceCode);
+        return personalReponsitory.findByInsuranceCode(insuranceCode);
     }
 }

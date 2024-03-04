@@ -13,6 +13,8 @@ import org.jetbrains.annotations.NotNull;
 @Table
 public class Organization {
     @Id
+    @NotNull("Mã bảo hiểm không được null")
+    private String insuranceCode;
     @NotNull("Id không được null")
     private String id;
     @NotNull("Tên không được null")
@@ -30,4 +32,42 @@ public class Organization {
     @ManyToOne
     @JoinColumn(name = "idInsuranceAgency")
     private InsuranceAgency idInsuranceAgency;
+
+    public boolean Check(){
+        String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+        if(getId().isEmpty()) {
+            System.out.println("Id is empty");
+            return false;
+        }
+        if(getName().isEmpty()){
+            System.out.println("Name is empty");
+            return false;
+        }
+        if(getInsuranceCode().isEmpty()){
+            System.out.println("InsuranceCode is empty");
+            return false;
+        }
+        if(getEmail().isEmpty()||!getEmail().matches(emailRegex))
+        {
+            System.out.println("Email is not format");
+            return false;
+        }
+        if(getPhoneNumber().isEmpty()){
+            System.out.println("PhoneNumber is empty");
+            return false;
+        }
+        if(getTaxCode().isEmpty()){
+            System.out.println("TaxCode is empty");
+            return false;
+        }
+        if(getRepresentative().isEmpty()){
+            System.out.println("Representative is empty");
+            return false;
+        }
+        if(getAddress().isEmpty()){
+            System.out.println("Address is empty");
+            return false;
+        }
+        return true;
+    }
 }
