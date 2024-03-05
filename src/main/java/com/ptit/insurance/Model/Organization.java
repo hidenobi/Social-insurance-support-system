@@ -32,6 +32,8 @@ public class Organization {
     @ManyToOne
     @JoinColumn(name = "idInsuranceAgency")
     private InsuranceAgency idInsuranceAgency;
+    @NotNull
+    private boolean verifyPhoneNumber;
 
     public boolean Check(){
         String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
