@@ -36,6 +36,7 @@ public class Personal {
     @JoinColumn(name = "idInsuranceAgency")
     private InsuranceAgency InsuranceAgency;
     private boolean isForeigner;
+    private boolean veryfiPhoneNumber;
     private float exemptionLevel;
     private String timeMethodPayment;
     private int income;

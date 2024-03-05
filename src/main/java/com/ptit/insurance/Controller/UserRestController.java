@@ -5,19 +5,19 @@ import com.ptit.insurance.Lib.EmailSender;
 import com.ptit.insurance.Lib.newPassword;
 import com.ptit.insurance.Model.Organization;
 import com.ptit.insurance.Model.Personal;
+import com.ptit.insurance.Model.Token;
 import com.ptit.insurance.Model.User;
 import com.ptit.insurance.Service.JwtService;
 import com.ptit.insurance.Service.OrganizationService;
 import com.ptit.insurance.Service.PersonalService;
 import com.ptit.insurance.Service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.SQLDataException;
-import java.sql.SQLException;
+
+import java.util.Date;
 
 @RestController
 @CrossOrigin
@@ -29,7 +29,7 @@ public class UserRestController {
     private final JwtService jwtService;
     private final EmailSender emailSender;
     private final OrganizationService organizationService;
-    @PostMapping("/registerPersonnal")
+    @PostMapping("/registerPersonal")
     public ResponseEntity<String> registerPersonal(@RequestBody Personal personal){
             if(!personal.Check()) return ResponseEntity.status(HttpStatus.CONFLICT).body("Incorrect personal format");
             String insuranceCode = personal.getInsuranceCode();
@@ -106,13 +106,14 @@ public class UserRestController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody User user){
+    public ResponseEntity<?> login(@RequestBody User user){
             User uCheck = userService.findUserByInsuranceCode(user.getInsuranceCode());
             if(uCheck==null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
             if(user.getPassword().equals(uCheck.getPassword())){
                 String JWT = this.jwtService.generateToken(userService.findUserByInsuranceCode(user.getInsuranceCode()));
                 System.out.println(user.getInsuranceCode()+" token: "+JWT);
-                return ResponseEntity.status(HttpStatus.OK).body(JWT);
+                Token token = new Token(JWT,new Date(System.currentTimeMillis()+(1000*60*24)));
+                return ResponseEntity.status(HttpStatus.OK).body(token);
             }
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
     }
