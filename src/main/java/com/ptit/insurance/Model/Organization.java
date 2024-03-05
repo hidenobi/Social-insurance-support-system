@@ -37,6 +37,40 @@ public class Organization {
 
     public boolean Check(){
         String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+        if(id==null) {
+            System.out.println("Id is empty");
+            return false;
+        }
+        if(name==null){
+            System.out.println("Name is empty");
+            return false;
+        }
+        if(insuranceCode==null){
+            System.out.println("InsuranceCode is empty");
+            return false;
+        }
+        if(email==null)
+        {
+            System.out.println("Email is not format");
+            return false;
+        }
+        if(phoneNumber==null){
+            System.out.println("PhoneNumber is empty");
+            return false;
+        }
+        if(taxCode==null){
+            System.out.println("TaxCode is empty");
+            return false;
+        }
+        if(representative==null){
+            System.out.println("Representative is empty");
+            return false;
+        }
+        if(address==null){
+            System.out.println("Address is empty");
+            return false;
+        }
+        //----------------------------
         if(getId().isEmpty()) {
             System.out.println("Id is empty");
             return false;

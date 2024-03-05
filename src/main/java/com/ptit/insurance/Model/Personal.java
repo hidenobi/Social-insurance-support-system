@@ -43,6 +43,44 @@ public class Personal {
     public boolean Check(){
         System.out.println("Check: "+getIdPersonal());
         String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+        if(fullName==null) {
+            System.out.println("FullName is empty");
+            return false;
+        }
+        if(idPersonal==null){
+            System.out.println("IdPersonal is empty");
+            return false;
+        }
+        if(insuranceCode==null){
+            System.out.println("InsuranceCode is empty");
+            return false;
+        }
+        if(email==null)
+        {
+            System.out.println("Email is not format");
+            return false;
+        }
+        if(phoneNumber==null){
+            System.out.println("PhoneNumber is empty");
+            return false;
+        }
+        if(imgPersonal==null){
+            System.out.println("ImgPersonal is empty");
+            return false;
+        }
+        if(imgBackId==null){
+            System.out.println("ImgBackId is empty");
+            return false;
+        }
+        if(imgFrontId==null){
+            System.out.println("ImgFrontId is empty");
+            return false;
+        }
+       if(address==null){
+           System.out.println("Address is empty");
+           return false;
+       }
+       //------------------
         if(getFullName().isEmpty()) {
             System.out.println("FullName is empty");
             return false;
@@ -76,10 +114,10 @@ public class Personal {
             System.out.println("ImgFrontId is empty");
             return false;
         }
-       if(getAddress().isEmpty()){
-           System.out.println("Address is empty");
-           return false;
-       }
+        if(getAddress().isEmpty()){
+            System.out.println("Address is empty");
+            return false;
+        }
         return true;
     }
 }
