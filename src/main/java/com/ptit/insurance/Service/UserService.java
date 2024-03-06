@@ -1,6 +1,7 @@
 package com.ptit.insurance.Service;
 
 import com.ptit.insurance.Lib.Role;
+import com.ptit.insurance.Lib.RoleUser;
 import com.ptit.insurance.Lib.newPassword;
 import com.ptit.insurance.Model.Organization;
 import com.ptit.insurance.Model.Personal;
@@ -31,7 +32,8 @@ public class UserService {
     }
     public boolean createUser(Personal personal){
         try{
-            userReponsitory.save(new User(personal.getInsuranceCode(), newPassword.getNewPassword(personal), Role.USER));
+            User user = new User(personal.getInsuranceCode(), newPassword.getNewPassword(personal), Role.USER, RoleUser.PERSONAL);
+            userReponsitory.save(user);
             System.out.println("Save user from personal success");
             return true;
         }catch (Exception e){
@@ -42,7 +44,8 @@ public class UserService {
 
     public boolean createUser(Organization organization){
         try{
-            userReponsitory.save(new User(organization.getTaxCode(), newPassword.getNewPassword(organization),Role.USER));
+            User user = new User(organization.getInsuranceCode(), newPassword.getNewPassword(organization),Role.USER,RoleUser.ORGANIZATION);
+            userReponsitory.save(user);
             System.out.println("Save user from organization success");
             return true;
         }catch (Exception e){

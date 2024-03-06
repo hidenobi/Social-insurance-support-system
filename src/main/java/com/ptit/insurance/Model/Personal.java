@@ -1,11 +1,14 @@
 package com.ptit.insurance.Model;
 
 
+import com.ptit.insurance.Lib.TypeInsurance;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
+
+import java.sql.Date;
 
 @Data
 @AllArgsConstructor
@@ -35,49 +38,50 @@ public class Personal {
     @ManyToOne
     @JoinColumn(name = "idInsuranceAgency")
     private InsuranceAgency InsuranceAgency;
-    private boolean isForeigner;
+    private boolean isForeigner ;
     private boolean verifyPhoneNumber;
     private float exemptionLevel;
     private String timeMethodPayment;
+    private TypeInsurance typeInsurance = TypeInsurance.NONE;
     private int income;
     public boolean Check(){
         System.out.println("Check: "+getIdPersonal());
         String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
         if(fullName==null) {
-            System.out.println("FullName is empty");
+            System.out.println("FullName is null");
             return false;
         }
         if(idPersonal==null){
-            System.out.println("IdPersonal is empty");
+            System.out.println("IdPersonal is null");
             return false;
         }
         if(insuranceCode==null){
-            System.out.println("InsuranceCode is empty");
+            System.out.println("InsuranceCode is null");
             return false;
         }
         if(email==null)
         {
-            System.out.println("Email is not format");
+            System.out.println("Email is not null");
             return false;
         }
         if(phoneNumber==null){
-            System.out.println("PhoneNumber is empty");
+            System.out.println("PhoneNumber is null");
             return false;
         }
         if(imgPersonal==null){
-            System.out.println("ImgPersonal is empty");
+            System.out.println("ImgPersonal is null");
             return false;
         }
         if(imgBackId==null){
-            System.out.println("ImgBackId is empty");
+            System.out.println("ImgBackId is null");
             return false;
         }
         if(imgFrontId==null){
-            System.out.println("ImgFrontId is empty");
+            System.out.println("ImgFrontId is null");
             return false;
         }
        if(address==null){
-           System.out.println("Address is empty");
+           System.out.println("Address is null");
            return false;
        }
        //------------------
@@ -119,5 +123,34 @@ public class Personal {
             return false;
         }
         return true;
+    }
+
+    public boolean CheckDeclaration(){
+        if(exemptionLevel==0){
+            System.out.println("Exemption Level not declared");
+            return false;
+        }
+        if(income==0){
+            System.out.println("Income not declared");
+            return false;
+        }
+        if(timeMethodPayment==null){
+            System.out.println("Time Method Payment not declared");
+        }
+        return true;
+    }
+
+    public boolean checkDeclaration(Personal personalCheck) {
+        if(!this.idPersonal.equals(personalCheck.idPersonal)) return false;
+        if(!this.address.equals(personalCheck.address)) return false;
+        if(!this.imgPersonal.equals(personalCheck.imgPersonal)) return false;
+        if(!this.imgFrontId.equals(personalCheck.imgFrontId)) return false;
+        if(!this.imgBackId.equals(personalCheck.imgBackId)) return false;
+        if(!this.phoneNumber.equals(personalCheck.phoneNumber)) return false;
+        if(!this.fullName.equals(personalCheck.fullName)) return false;
+        if(!this.InsuranceAgency.equals(personalCheck.InsuranceAgency)) return false;
+        if(!this.email.equals(personalCheck.email)) return false;
+        return true;
+
     }
 }
