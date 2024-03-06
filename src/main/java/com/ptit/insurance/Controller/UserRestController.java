@@ -11,6 +11,7 @@ import com.ptit.insurance.Service.JwtService;
 import com.ptit.insurance.Service.OrganizationService;
 import com.ptit.insurance.Service.PersonalService;
 import com.ptit.insurance.Service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +30,7 @@ public class UserRestController {
     private final JwtService jwtService;
     private final EmailSender emailSender;
     private final OrganizationService organizationService;
-    @PostMapping("/registerPersonal")
+    @PostMapping("/register/personal")
     public ResponseEntity<String> registerPersonal(@RequestBody Personal personal){
             if(!personal.Check()) return ResponseEntity.status(HttpStatus.CONFLICT).body("Incorrect personal format");
             String insuranceCode = personal.getInsuranceCode();
@@ -60,7 +61,7 @@ public class UserRestController {
                 }
             }
     }
-    @PostMapping("/registerOrganization")
+    @PostMapping("/register/organization")
     public ResponseEntity<String> registerOrganization(@RequestBody Organization organization){
         if(!organization.Check()) return ResponseEntity.status(HttpStatus.CONFLICT).body("Incorrect organization format");
         String insuranceCode = organization.getInsuranceCode();
@@ -94,10 +95,11 @@ public class UserRestController {
 
 
     
-    @PostMapping("/changePassword")
+    @PostMapping("/change_password")
     public ResponseEntity<String> changePassword(@RequestBody User user){
         try{
-            if(userService.findUserByInsuranceCode(user.getInsuranceCode())==null) return ResponseEntity.status(HttpStatus.CONFLICT).body("The user does not exist in the database ");
+            if(userService.findUserByInsuranceCode(user.getInsuranceCode())==null)
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("The user does not exist in the database ");
             userService.updateUser(user);
             return ResponseEntity.ok("Update successful");
         }catch (Exception e){
@@ -108,13 +110,31 @@ public class UserRestController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody User user){
             User uCheck = userService.findUserByInsuranceCode(user.getInsuranceCode());
-            if(uCheck==null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            if(uCheck==null)
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
             if(user.getPassword().equals(uCheck.getPassword())){
-                String JWT = this.jwtService.generateToken(userService.findUserByInsuranceCode(user.getInsuranceCode()));
+                User userJWT = userService.findUserByInsuranceCode(user.getInsuranceCode());
+                String JWT = this.jwtService.generateToken(userJWT);
                 System.out.println(user.getInsuranceCode()+" token: "+JWT);
                 Token token = new Token(JWT,new Date(System.currentTimeMillis()+(1000*60*24)));
                 return ResponseEntity.status(HttpStatus.OK).body(token);
             }
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
     }
+
+    @GetMapping("/userinfo")
+    public ResponseEntity<?> getUserInfo(HttpServletRequest request) {
+        try{
+            String username = jwtService.getUsernameFromJwt(request);
+            if(username==null) ResponseEntity.status(HttpStatus.NOT_FOUND).body("Can't find user from token");
+            User user = userService.findUserByInsuranceCode(username);
+            if(user==null) ResponseEntity.status(HttpStatus.NOT_FOUND).body("User does not exist in database");
+            return ResponseEntity.status(HttpStatus.OK).body(user);
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body("Can't find user");
+        }
+    }
+
+
+
 }

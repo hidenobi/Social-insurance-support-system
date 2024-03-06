@@ -1,6 +1,7 @@
 package com.ptit.insurance.Model;
 
 import com.ptit.insurance.Lib.Role;
+import com.ptit.insurance.Lib.RoleUser;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,6 +27,9 @@ public class User implements UserDetails {
     private String password;
     @Enumerated(EnumType.STRING)
     private Role role;
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    private RoleUser roleUser;
 
     public User(String insuranceCode,String password){
         this.insuranceCode=insuranceCode;

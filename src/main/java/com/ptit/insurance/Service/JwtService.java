@@ -7,6 +7,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoder;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -40,6 +41,33 @@ public class JwtService {
                 .setExpiration(new Date(System.currentTimeMillis()+1000*60*24))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
+    }
+    private String getJwtFromRequest(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        return null;
+    }
+    private boolean validateJwtToken(String jwt) {
+        try {
+            Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(jwt);
+            return true;
+        } catch (Exception e) {
+            // JWT exception
+        }
+        return false;
+    }
+    public String getUsernameFromJwt(HttpServletRequest request) {
+        String jwt = getJwtFromRequest(request);
+        if (jwt != null && validateJwtToken(jwt)) {
+            Claims claims = Jwts.parser()
+                    .setSigningKey(SECRET_KEY)
+                    .parseClaimsJws(jwt)
+                    .getBody();
+            return claims.getSubject();
+        }
+        return null;
     }
 
     public boolean isTokenValid(String token,UserDetails userDetails){
