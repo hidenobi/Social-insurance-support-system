@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface PersonalReponsitory extends JpaRepository<Personal,String> {
+public interface PersonalReponsitory extends JpaRepository<Personal, String> {
     Personal findByInsuranceCode(String InsuranceCode);
 }

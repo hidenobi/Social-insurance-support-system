@@ -31,9 +31,9 @@ public class User implements UserDetails {
     @NotNull
     private RoleUser roleUser;
 
-    public User(String insuranceCode,String password){
-        this.insuranceCode=insuranceCode;
-        this.password=password;
+    public User(String insuranceCode, String password) {
+        this.insuranceCode = insuranceCode;
+        this.password = password;
     }
 
     @Override

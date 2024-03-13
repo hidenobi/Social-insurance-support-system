@@ -18,16 +18,17 @@ import org.springframework.security.web.authentication.logout.LogoutHandler;
 public class SecurityCofig {
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
-//    private final LogoutHandler logoutHandler;
+
+    //    private final LogoutHandler logoutHandler;
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity security) throws Exception{
+    public SecurityFilterChain securityFilterChain(HttpSecurity security) throws Exception {
         security.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize.requestMatchers("/api/user/**").permitAll()
-                                                    .anyRequest().authenticated())
+                        .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
-                return security.build();
+        return security.build();
     }
 }

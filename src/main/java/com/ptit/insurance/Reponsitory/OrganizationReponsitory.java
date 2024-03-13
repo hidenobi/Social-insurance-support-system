@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface OrganizationReponsitory extends JpaRepository<Organization,String> {
-   Organization findByInsuranceCode(String insuranceCode);
+public interface OrganizationReponsitory extends JpaRepository<Organization, String> {
+    Organization findByInsuranceCode(String insuranceCode);
 }

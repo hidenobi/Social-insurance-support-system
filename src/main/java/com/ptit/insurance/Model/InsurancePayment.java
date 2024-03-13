@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.Time;
+
 @Data
 @Entity
 @Table
@@ -24,11 +25,9 @@ public class InsurancePayment {
     private Time beginAt;
     @NotNull
     private Time endAt;
-    @NotNull
-    private int monntDebt;
-    @NotNull
+    private int montDebt;
     private int totalPayment;
-    @NotNull
     private boolean isPayment;
+
 
 }

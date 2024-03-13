@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin
 public class InsurancePaymentRestController {
     @GetMapping("/test")
-    public String test(){
+    public String test() {
         return "test";
     }
 }

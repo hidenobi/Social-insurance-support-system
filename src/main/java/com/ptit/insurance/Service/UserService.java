@@ -18,56 +18,58 @@ public class UserService {
     private UserRepository userReponsitory;
 
 
-    public void Delete(Personal personal){
+    public void Delete(Personal personal) {
         User u = userReponsitory.findByInsuranceCode(personal.getInsuranceCode()).get();
-        if(u!=null){
+        if (u != null) {
             userReponsitory.delete(u);
         }
     }
-    public void Delete(Organization organizations){
+
+    public void Delete(Organization organizations) {
         User u = userReponsitory.findByInsuranceCode(organizations.getInsuranceCode()).get();
-        if(u!=null){
+        if (u != null) {
             userReponsitory.delete(u);
         }
     }
-    public boolean createUser(Personal personal){
-        try{
+
+    public boolean createUser(Personal personal) {
+        try {
             User user = new User(personal.getInsuranceCode(), newPassword.getNewPassword(personal), Role.USER, RoleUser.PERSONAL);
             userReponsitory.save(user);
             System.out.println("Save user from personal success");
             return true;
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e.getMessage());
             return false;
         }
     }
 
-    public boolean createUser(Organization organization){
-        try{
-            User user = new User(organization.getInsuranceCode(), newPassword.getNewPassword(organization),Role.USER,RoleUser.ORGANIZATION);
+    public boolean createUser(Organization organization) {
+        try {
+            User user = new User(organization.getInsuranceCode(), newPassword.getNewPassword(organization), Role.USER, RoleUser.ORGANIZATION);
             userReponsitory.save(user);
             System.out.println("Save user from organization success");
             return true;
-        }catch (Exception e){
+        } catch (Exception e) {
             return false;
         }
     }
 
-    public String updateUser(User user){
-        try{
+    public String updateUser(User user) {
+        try {
             userReponsitory.save(user);
             return "sucess";
-        }catch (Exception e){
+        } catch (Exception e) {
             return e.getMessage();
         }
     }
 
-    public User findUserByInsuranceCode(String insuranceCode){
-        try{
+    public User findUserByInsuranceCode(String insuranceCode) {
+        try {
             User user = userReponsitory.findByInsuranceCode(insuranceCode).get();
             return user;
 
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e.getMessage());
             return null;
         }

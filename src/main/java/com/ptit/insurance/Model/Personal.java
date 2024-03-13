@@ -33,123 +33,128 @@ public class Personal {
     private String address;
     @NotNull("Không được thiếu email")
     private String email;
-    @NotNull( "Không được thiếu số điện thoại")
+    @NotNull("Không được thiếu số điện thoại")
     private String phoneNumber;
     @ManyToOne
     @JoinColumn(name = "idInsuranceAgency")
     private InsuranceAgency InsuranceAgency;
-    private boolean isForeigner ;
+    private boolean isForeigner;
     private boolean verifyPhoneNumber;
     private float exemptionLevel;
-    private String timeMethodPayment;
+    private int timeMethodPayment;
     private TypeInsurance typeInsurance = TypeInsurance.NONE;
     private int income;
-    public boolean Check(){
-        System.out.println("Check: "+getIdPersonal());
+    private Date beginAt;
+
+    public boolean Check() {
+        System.out.println("Check: " + getIdPersonal());
         String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
-        if(fullName==null) {
+        if (fullName == null) {
             System.out.println("FullName is null");
             return false;
         }
-        if(idPersonal==null){
+        if (idPersonal == null) {
             System.out.println("IdPersonal is null");
             return false;
         }
-        if(insuranceCode==null){
+        if (insuranceCode == null) {
             System.out.println("InsuranceCode is null");
             return false;
         }
-        if(email==null)
-        {
+        if (email == null) {
             System.out.println("Email is not null");
             return false;
         }
-        if(phoneNumber==null){
+        if (phoneNumber == null) {
             System.out.println("PhoneNumber is null");
             return false;
         }
-        if(imgPersonal==null){
+        if (imgPersonal == null) {
             System.out.println("ImgPersonal is null");
             return false;
         }
-        if(imgBackId==null){
+        if (imgBackId == null) {
             System.out.println("ImgBackId is null");
             return false;
         }
-        if(imgFrontId==null){
+        if (imgFrontId == null) {
             System.out.println("ImgFrontId is null");
             return false;
         }
-       if(address==null){
-           System.out.println("Address is null");
-           return false;
-       }
-       //------------------
-        if(getFullName().isEmpty()) {
+        if (address == null) {
+            System.out.println("Address is null");
+            return false;
+        }
+        //------------------
+        if (getFullName().isEmpty()) {
             System.out.println("FullName is empty");
             return false;
         }
-        if(getIdPersonal().isEmpty()){
+        if (getIdPersonal().isEmpty()) {
             System.out.println("IdPersonal is empty");
             return false;
         }
-        if(getInsuranceCode().isEmpty()){
+        if (getInsuranceCode().isEmpty()) {
             System.out.println("InsuranceCode is empty");
             return false;
         }
-        if(getEmail().isEmpty()||!getEmail().matches(emailRegex))
-        {
+        if (getEmail().isEmpty() || !getEmail().matches(emailRegex)) {
             System.out.println("Email is not format");
             return false;
         }
-        if(getPhoneNumber().isEmpty()){
+        if (getPhoneNumber().isEmpty()) {
             System.out.println("PhoneNumber is empty");
             return false;
         }
-        if(getImgPersonal().isEmpty()){
+        if (getImgPersonal().isEmpty()) {
             System.out.println("ImgPersonal is empty");
             return false;
         }
-        if(getImgBackId().isEmpty()){
+        if (getImgBackId().isEmpty()) {
             System.out.println("ImgBackId is empty");
             return false;
         }
-        if(getImgFrontId().isEmpty()){
+        if (getImgFrontId().isEmpty()) {
             System.out.println("ImgFrontId is empty");
             return false;
         }
-        if(getAddress().isEmpty()){
+        if (getAddress().isEmpty()) {
             System.out.println("Address is empty");
             return false;
         }
         return true;
     }
 
-    public boolean CheckDeclaration(){
-        if(exemptionLevel==0){
+    public boolean CheckDeclaration() {
+        if (exemptionLevel == 0) {
             System.out.println("Exemption Level not declared");
             return false;
         }
-        if(income==0){
+        if (income == 0) {
             System.out.println("Income not declared");
             return false;
         }
-        if(timeMethodPayment==null){
+        if (timeMethodPayment == 0) {
             System.out.println("Time Method Payment not declared");
+            return false;
+        }
+        if(beginAt==null){
+            System.out.println("Begin time is null");
+            return false;
         }
         return true;
     }
 
     public boolean checkDeclaration(Personal personalCheck) {
-        if(!this.idPersonal.equals(personalCheck.idPersonal)) return false;
-        if(!this.address.equals(personalCheck.address)) return false;
-        if(!this.imgPersonal.equals(personalCheck.imgPersonal)) return false;
-        if(!this.imgFrontId.equals(personalCheck.imgFrontId)) return false;
-        if(!this.imgBackId.equals(personalCheck.imgBackId)) return false;
-        if(!this.phoneNumber.equals(personalCheck.phoneNumber)) return false;
-        if(!this.fullName.equals(personalCheck.fullName)) return false;
-        if(!this.InsuranceAgency.equals(personalCheck.InsuranceAgency)) return false;
-        if(!this.email.equals(personalCheck.email)) return false;
+        if (!this.idPersonal.equals(personalCheck.idPersonal)) return false;
+        if (!this.address.equals(personalCheck.address)) return false;
+        if (!this.imgPersonal.equals(personalCheck.imgPersonal)) return false;
+        if (!this.imgFrontId.equals(personalCheck.imgFrontId)) return false;
+        if (!this.imgBackId.equals(personalCheck.imgBackId)) return false;
+        if (!this.phoneNumber.equals(personalCheck.phoneNumber)) return false;
+        if (!this.fullName.equals(personalCheck.fullName)) return false;
+        if (!this.InsuranceAgency.equals(personalCheck.InsuranceAgency)) return false;
+        if (!this.email.equals(personalCheck.email)) return false;
         return true;
 
     }

@@ -10,11 +10,11 @@ public class OrganizationService {
     @Autowired
     private OrganizationReponsitory organizationReponsitory;
 
-    public boolean Save(Organization organization){
-        try{
+    public boolean Save(Organization organization) {
+        try {
             organizationReponsitory.save(organization);
             return true;
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e.getMessage());
             return false;
         }
@@ -22,17 +22,17 @@ public class OrganizationService {
     }
 
     public Organization findByInsuranceCode(String insuranceCode) {
-        try{
+        try {
             Organization organization = organizationReponsitory.findByInsuranceCode(insuranceCode);
             return organization;
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e.getMessage());
             return null;
         }
     }
 
-    public void Delete(Organization organization){
-        if(organizationReponsitory.findByInsuranceCode(organization.getInsuranceCode())!=null){
+    public void Delete(Organization organization) {
+        if (organizationReponsitory.findByInsuranceCode(organization.getInsuranceCode()) != null) {
             organizationReponsitory.delete(organization);
         }
     }
