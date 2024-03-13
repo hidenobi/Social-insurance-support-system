@@ -46,9 +46,8 @@ public class PersonalRestController {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User can't declare");
             if (personal.checkDeclaration(personalCheck))
                 return ResponseEntity.status(HttpStatus.CONFLICT).body("Declaration information does not match");
+            InsurancePayment insurancePayment = new InsurancePayment();
             personalService.Save(personal);
-
-
             return ResponseEntity.status(HttpStatus.OK).body("Declaration success");
         } catch (Exception e) {
             System.out.println(e.getMessage());
