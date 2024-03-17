@@ -45,7 +45,7 @@ public class Personal {
     private TypeInsurance typeInsurance = TypeInsurance.NONE;
     private int income;
     private Date beginAt;
-
+    private boolean isActive;
     public boolean Check() {
         System.out.println("Check: " + getIdPersonal());
         String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";

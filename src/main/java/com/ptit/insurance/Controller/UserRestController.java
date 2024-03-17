@@ -24,7 +24,6 @@ public class UserRestController {
     private final PersonalService personalService;
     private final JwtService jwtService;
     private final EmailSender emailSender;
-    private final OrganizationService organizationService;
     private final InsuranceAgencyService insuranceAgencyService;
     @GetMapping("/insurance_payment_for_register")
     public ResponseEntity<?> insurancePayment(){
@@ -67,36 +66,6 @@ public class UserRestController {
         }
     }
 
-    @PostMapping("/register/organization")
-    public ResponseEntity<String> registerOrganization(@RequestBody Organization organization) {
-        if (!organization.Check())
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Incorrect organization format");
-        String insuranceCode = organization.getInsuranceCode();
-        Organization personalCheck = organizationService.findByInsuranceCode(insuranceCode);
-        if (personalCheck != null) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("The organization already exists in the database");
-        } else {
-            try {
-                if (organizationService.Save(organization) && userService.createUser(organization)) {
-                    String newPass = newPassword.getNewPassword(organization);
-                    if (emailSender.sendEmail(organization.getEmail(), "New password", "New password: " + newPass))
-                        return ResponseEntity.status(HttpStatus.OK).body("register success");
-                    else {
-                        organizationService.Delete(organization);
-                        userService.Delete(organization);
-                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Can't register");
-                    }
-                } else {
-                    organizationService.Delete(organization);
-                    userService.Delete(organization);
-                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Can't register");
-                }
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Can't register");
-            }
-        }
-    }
 
 
     @PostMapping("/change_password")

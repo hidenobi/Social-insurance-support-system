@@ -11,5 +11,5 @@ import java.util.List;
 public interface InsurancePaymentRepository extends JpaRepository<InsurancePayment, String> {
     @Query("select ip from InsurancePayment ip where ip.personal.insuranceCode = :insuranceCode and ip.isPayment = :isPayment")
     List<InsurancePayment> retrieveUnpaidInvoicesIndividually(String insuranceCode, boolean isPayment);
-
+    InsurancePayment findFirstById(String id);
 }

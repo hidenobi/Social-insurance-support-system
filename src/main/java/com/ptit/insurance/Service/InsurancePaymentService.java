@@ -19,7 +19,19 @@ public class InsurancePaymentService {
         }catch (Exception e){
             return null;
         }
-
     }
+
+    public boolean Save(InsurancePayment insurancePayment){
+        try{
+            if(insurancePaymentRepository.findFirstById(insurancePayment.getId())==null) {
+                insurancePaymentRepository.save(insurancePayment);
+                return true;
+            }
+            else  return false;
+        }catch (Exception e){
+            return false;
+        }
+    }
+
 
 }

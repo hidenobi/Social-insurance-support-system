@@ -30,10 +30,14 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     @NotNull
     private RoleUser roleUser;
+    private boolean isActive;
 
-    public User(String insuranceCode, String password) {
+
+    public User(String insuranceCode, String password,Role role, RoleUser roleUser) {
         this.insuranceCode = insuranceCode;
         this.password = password;
+        this.roleUser = roleUser;
+        this.role = role;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.ptit.insurance.Controller;
 
 import com.ptit.insurance.Lib.TypeInsurance;
+import com.ptit.insurance.Lib.UUID;
 import com.ptit.insurance.Model.InsurancePayment;
 import com.ptit.insurance.Model.Personal;
 import com.ptit.insurance.Service.InsurancePaymentService;
@@ -12,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Time;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -46,7 +49,12 @@ public class PersonalRestController {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User can't declare");
             if (personal.checkDeclaration(personalCheck))
                 return ResponseEntity.status(HttpStatus.CONFLICT).body("Declaration information does not match");
-            InsurancePayment insurancePayment = new InsurancePayment();
+            Date currentDate = new Date();
+            Time currentTime = new Time(currentDate.getTime());
+            Time endTime = new Time(currentTime.getTime()+ (long) personal.getTimeMethodPayment()*24*60*60*1000);
+            int money = (int) ((0.22*personal.getIncome())*(personal.getTimeMethodPayment())*(1- personal.getExemptionLevel()));
+            InsurancePayment insurancePayment = new InsurancePayment(UUID.generateUUID(),personal,currentTime,endTime,0,money,false);
+            insurancePaymentService.Save(insurancePayment);
             personalService.Save(personal);
             return ResponseEntity.status(HttpStatus.OK).body("Declaration success");
         } catch (Exception e) {

@@ -6,28 +6,25 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
-import java.sql.Time;
+import java.sql.Date;
 
 @Data
-@Entity
-@Table
 @AllArgsConstructor
 @NoArgsConstructor
-public class InsurancePayment {
-    @jakarta.persistence.Id
+@Table(name = "exemptionlevel")
+@Entity
+public class ExemptionLevel {
+    @Id
     @NotNull
-    private String Id;
-    @ManyToOne
+    private String id;
     @JoinColumn(name = "insuranceCode")
+    @ManyToOne
     @NotNull
     private Personal personal;
+    private float exemptionLevel;
     @NotNull
-    private Time beginAt;
+    private Date beginAt;
+    private Date endAt;
     @NotNull
-    private Time endAt;
-    private int monthDebt;
-    private int totalPayment;
-    private boolean isPayment;
-
-
+    private String urlImg;
 }
