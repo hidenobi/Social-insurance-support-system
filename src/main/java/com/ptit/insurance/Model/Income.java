@@ -6,28 +6,26 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
-import java.sql.Time;
+import java.sql.Date;
 
 @Data
-@Entity
-@Table
 @AllArgsConstructor
 @NoArgsConstructor
-public class InsurancePayment {
-    @jakarta.persistence.Id
+@Table(name = "income")
+@Entity
+public class Income {
+    @Id
     @NotNull
-    private String Id;
-    @ManyToOne
+    private String id;
     @JoinColumn(name = "insuranceCode")
+    @ManyToOne
     @NotNull
     private Personal personal;
     @NotNull
-    private Time beginAt;
+    private int income;
     @NotNull
-    private Time endAt;
-    private int monthDebt;
-    private int totalPayment;
-    private boolean isPayment;
-
+    private Date beginAt;
+    @NotNull
+    private Date endAt;
 
 }

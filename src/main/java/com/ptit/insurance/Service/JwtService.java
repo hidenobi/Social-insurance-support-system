@@ -20,28 +20,30 @@ public class JwtService {
 
     final String SECRET_KEY = "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970";
 
-    public String extractInsuranceCode(String token){
-      return extractClaim(token,Claims::getSubject);
+    public String extractInsuranceCode(String token) {
+        return extractClaim(token, Claims::getSubject);
     }
 
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver){
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
-    public String generateToken(UserDetails userDetails){
-        return generateToken(new HashMap<>(),userDetails);
+    public String generateToken(UserDetails userDetails) {
+        return generateToken(new HashMap<>(), userDetails);
     }
-    public String generateToken(Map<String, Object> extractClaims, UserDetails userDetails){
+
+    public String generateToken(Map<String, Object> extractClaims, UserDetails userDetails) {
         return Jwts
                 .builder()
                 .setClaims(extractClaims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis()+1000*60*24))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 24))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
+
     private String getJwtFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
@@ -49,6 +51,7 @@ public class JwtService {
         }
         return null;
     }
+
     private boolean validateJwtToken(String jwt) {
         try {
             Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(jwt);
@@ -58,6 +61,7 @@ public class JwtService {
         }
         return false;
     }
+
     public String getUsernameFromJwt(HttpServletRequest request) {
         String jwt = getJwtFromRequest(request);
         if (jwt != null && validateJwtToken(jwt)) {
@@ -70,9 +74,9 @@ public class JwtService {
         return null;
     }
 
-    public boolean isTokenValid(String token,UserDetails userDetails){
+    public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractInsuranceCode(token);
-        return username.equals(userDetails.getUsername())&&!isTokenValid(token);
+        return username.equals(userDetails.getUsername()) && !isTokenValid(token);
     }
 
     private boolean isTokenValid(String token) {
@@ -80,10 +84,10 @@ public class JwtService {
     }
 
     private Date extractExpiration(String token) {
-        return extractClaim(token,Claims::getExpiration);
+        return extractClaim(token, Claims::getExpiration);
     }
 
-    private Claims extractAllClaims(String token){
+    private Claims extractAllClaims(String token) {
         return Jwts.
                 parserBuilder()
                 .setSigningKey(getSignInKey())
@@ -91,7 +95,8 @@ public class JwtService {
                 .parseClaimsJws(token)
                 .getBody();
     }
-    private Key getSignInKey(){
+
+    private Key getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
         return Keys.hmacShaKeyFor(keyBytes);
 
