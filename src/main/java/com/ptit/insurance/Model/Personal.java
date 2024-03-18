@@ -38,11 +38,15 @@ public class Personal {
     @ManyToOne
     @JoinColumn(name = "idInsuranceAgency")
     private InsuranceAgency InsuranceAgency;
+    @Transient
+    private String exemptionLevelUrlImg;
     private boolean isForeigner;
     private boolean verifyPhoneNumber;
+    @Transient
     private float exemptionLevel;
     private int timeMethodPayment;
     private TypeInsurance typeInsurance = TypeInsurance.NONE;
+    @Transient
     private int income;
     private Date beginAt;
     private boolean isActive;

@@ -34,6 +34,20 @@ public class UserRestController {
         }
         return ResponseEntity.badRequest().body("Server can't response");
     }
+    @PutMapping("/activeUser")
+    public ResponseEntity<?> activeUser(@RequestBody User user){
+       try{
+           User user1 = userService.findUserByInsuranceCode(user.getInsuranceCode());
+           if(!user1.getPassword().equals(user.getPassword())) return ResponseEntity.status(HttpStatus.CONFLICT).body("User not exist");
+           user.setActive(true);
+           userService.updateUser(user);
+           return ResponseEntity.ok().body("Update success");
+       }catch (Exception e){
+           user.setActive(false);
+           return ResponseEntity.badRequest().body("Can't update");
+       }
+
+    }
 
 
     @PostMapping("/register/personal")
@@ -86,6 +100,7 @@ public class UserRestController {
         if (uCheck == null)
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         if (user.getPassword().equals(uCheck.getPassword())) {
+            if(!user.isActive()) ResponseEntity.status(HttpStatus.FORBIDDEN).body("User account is not activated");
             User userJWT = userService.findUserByInsuranceCode(user.getInsuranceCode());
             String JWT = this.jwtService.generateToken(userJWT);
             System.out.println(user.getInsuranceCode() + " token: " + JWT);
