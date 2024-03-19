@@ -30,9 +30,13 @@ public class PersonalRestController {
     @GetMapping("/get_personal")
     public ResponseEntity<?> getPersonalByUser(HttpServletRequest request){
         String insuranceCode = jwtService.getUsernameFromJwt(request);
-        if (insuranceCode == null) return ResponseEntity.badRequest().body("Can't find the user");
+        if (insuranceCode == null) {
+            return ResponseEntity.badRequest().body("Can't find the user");
+        }
         Personal personal = personalService.findByInsuranceCode(insuranceCode);
-        if(personal==null) return ResponseEntity.status(HttpStatus.CONFLICT).body("Can't find the personal");
+        if(personal==null) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Can't find the personal");
+        }
         return ResponseEntity.ok().body(personal);
     }
 
@@ -44,12 +48,15 @@ public class PersonalRestController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Declaration missing information");
         try {
             Personal personalCheck = personalService.findByInsuranceCode(personal.getInsuranceCode());
-            if (personalCheck == null)
+            if (personalCheck == null) {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body("Personal does not exist in database");
-            if (!personalCheck.getTypeInsurance().equals(TypeInsurance.NONE))
+            }
+            if (!personalCheck.getTypeInsurance().equals(TypeInsurance.NONE)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User can't declare");
-            if (personal.checkDeclaration(personalCheck))
+            }
+            if (personal.checkDeclaration(personalCheck)) {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body("Declaration information does not match");
+            }
             Date currentDate = new Date();
             Time currentTime = new Time(currentDate.getTime());
             Time endTime = new Time(currentTime.getTime()+ (long) personal.getTimeMethodPayment()*24*60*60*1000);
@@ -73,12 +80,16 @@ public class PersonalRestController {
     public ResponseEntity<?> calculateInsurance(@PathVariable("insurance_code") String insuranceCode, HttpServletRequest request) {
         String insuranceCodeCheck = jwtService.getUsernameFromJwt(request);
         long amountToPay = 0;
-        if (insuranceCodeCheck == null) return ResponseEntity.badRequest().body("Can't find the user");
-        if (!insuranceCode.equals(insuranceCodeCheck))
+        if (insuranceCodeCheck == null) {
+            return ResponseEntity.badRequest().body("Can't find the user");
+        }
+        if (!insuranceCode.equals(insuranceCodeCheck)) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Unable to view insurance calculation");
+        }
         Personal personal = personalService.findByInsuranceCode(insuranceCode);
-        if (personal.getTypeInsurance().equals(TypeInsurance.NONE))
+        if (personal.getTypeInsurance().equals(TypeInsurance.NONE)) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("The user has not declared insurance");
+        }
         if (personal.isForeigner()) {
             List<InsurancePayment> insurancePaymentList = insurancePaymentService.RetrieveUnpaidInvoicesIndividually(insuranceCode);
             if(insurancePaymentList==null){
