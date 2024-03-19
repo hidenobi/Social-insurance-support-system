@@ -14,7 +14,7 @@ public class DatabaseConfig {
         dataSourceBuilder.driverClassName("com.mysql.cj.jdbc.Driver");
         dataSourceBuilder.url("jdbc:mysql://localhost:3306/insurance?useSSL=false&serverTimezone=UTC");
         dataSourceBuilder.username("root");
-        dataSourceBuilder.password("1234");
+        dataSourceBuilder.password("123456");
         return dataSourceBuilder.build();
     }
 }

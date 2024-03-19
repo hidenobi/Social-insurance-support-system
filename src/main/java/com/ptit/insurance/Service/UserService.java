@@ -26,7 +26,7 @@ public class UserService {
 
     public boolean createUser(Personal personal) {
         try {
-            User user = new User(personal.getInsuranceCode(), newPassword.getNewPassword(personal), Role.USER, RoleUser.PERSONAL);
+            User user = new User(personal.getInsuranceCode(), newPassword.getNewPassword(personal), Role.USER, RoleUser.PERSONAL,false);
             userReponsitory.save(user);
             System.out.println("Save user from personal success");
             return true;

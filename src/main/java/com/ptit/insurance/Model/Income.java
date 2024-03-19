@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
-import java.sql.Date;
+import java.sql.Time;
 
 @Data
 @AllArgsConstructor
@@ -24,8 +24,7 @@ public class Income {
     @NotNull
     private int income;
     @NotNull
-    private Date beginAt;
-    @NotNull
-    private Date endAt;
+    private Time beginAt;
+    private Time endAt;
 
 }
