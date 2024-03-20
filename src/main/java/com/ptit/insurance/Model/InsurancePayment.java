@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.Time;
+import java.util.List;
 
 @Data
 @Entity
@@ -21,13 +22,16 @@ public class InsurancePayment {
     @JoinColumn(name = "insuranceCode")
     @NotNull
     private Personal personal;
-    @NotNull
-    private Time beginAt;
-    @NotNull
-    private Time endAt;
-    private int monthDebt;
-    private int totalPayment;
+    private long totalPayment;
     private boolean isPayment;
+    @Transient
+    private List<MonthPayment> monthPaymentList;
 
+    public InsurancePayment(@NotNull String id, @NotNull Personal personal, int totalPayment, boolean isPayment) {
+        Id = id;
+        this.personal = personal;
+        this.totalPayment = totalPayment;
+        this.isPayment = isPayment;
+    }
 
 }

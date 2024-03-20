@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
+import java.sql.Date;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -26,6 +28,7 @@ public class MonthPayment {
     private ExemptionLevel exemptionLevel;
     @NotNull
     private int monthPayment;
+    private Date month;
     @JoinColumn(name = "insurancePayment")
     @ManyToOne
     @NotNull
