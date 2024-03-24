@@ -1,6 +1,7 @@
 package com.ptit.insurance.Service;
 
 import com.ptit.insurance.Model.InsurancePayment;
+import com.ptit.insurance.Model.Personal;
 import com.ptit.insurance.Reponsitory.InsurancePaymentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,12 @@ public class InsurancePaymentService {
         }
     }
 
+    public InsurancePayment findFirstByPersonalAndIsPayment(Personal personal, boolean isPayment){
+        InsurancePayment insurancePayment = insurancePaymentRepository.findFirstByPersonalAndPaymentIs(personal,isPayment);
+        return insurancePayment;
+    }
+
+
     public boolean Save(InsurancePayment insurancePayment){
         try{
             if(insurancePaymentRepository.findFirstById(insurancePayment.getId())==null) {
@@ -34,4 +41,7 @@ public class InsurancePaymentService {
     }
 
 
+    public void save(InsurancePayment insurancePaymentNew) {
+        insurancePaymentRepository.save(insurancePaymentNew);
+    }
 }

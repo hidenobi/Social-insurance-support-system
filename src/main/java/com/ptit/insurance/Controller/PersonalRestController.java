@@ -2,10 +2,7 @@ package com.ptit.insurance.Controller;
 
 import com.ptit.insurance.Lib.TypeInsurance;
 import com.ptit.insurance.Lib.UUID;
-import com.ptit.insurance.Model.ExemptionLevel;
-import com.ptit.insurance.Model.Income;
-import com.ptit.insurance.Model.InsurancePayment;
-import com.ptit.insurance.Model.Personal;
+import com.ptit.insurance.Model.*;
 import com.ptit.insurance.Service.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Time;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -27,14 +26,16 @@ public class PersonalRestController {
     private final InsurancePaymentService insurancePaymentService;
     private final IncomeService incomeService;
     private final ExemptionLevelService exemptionLevelService;
+    private final MonthPaymentService monthPaymentService;
+
     @GetMapping("/get_personal")
-    public ResponseEntity<?> getPersonalByUser(HttpServletRequest request){
+    public ResponseEntity<?> getPersonalByUser(HttpServletRequest request) {
         String insuranceCode = jwtService.getUsernameFromJwt(request);
         if (insuranceCode == null) {
             return ResponseEntity.badRequest().body("Can't find the user");
         }
         Personal personal = personalService.findByInsuranceCode(insuranceCode);
-        if(personal==null) {
+        if (personal == null) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Can't find the personal");
         }
         return ResponseEntity.ok().body(personal);
@@ -57,16 +58,15 @@ public class PersonalRestController {
             if (personal.checkDeclaration(personalCheck)) {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body("Declaration information does not match");
             }
-            Date currentDate = new Date();
-            Time currentTime = new Time(currentDate.getTime());
-            Time endTime = new Time(currentTime.getTime()+ (long) personal.getTimeMethodPayment()*24*60*60*1000);
-            int money = (int) ((0.22*personal.getIncome())*(personal.getTimeMethodPayment())*(1- personal.getExemptionLevel()));
-            InsurancePayment insurancePayment = new InsurancePayment(UUID.generateUUID(),personal,currentTime,endTime,0,money,false);
-            Income income = new Income(UUID.generateUUID(),personal,personal.getIncome(),currentTime,null);
-            ExemptionLevel exemptionLevel = new ExemptionLevel(UUID.generateUUID(),personal, personal.getExemptionLevel(), currentTime,null, personal.getExemptionLevelUrlImg());
-            if(incomeService.save(income)&&insurancePaymentService.Save(insurancePayment)&&personalService.Save(personal)&&exemptionLevelService.save(exemptionLevel)){
+
+            if (personalService.Save(personal)) {
+                Time currentTime = new Time(personal.getBeginAt().getTime());
+                Income income = new Income(UUID.generateUUID(), personal, personal.getIncome(), currentTime, null);
+                ExemptionLevel exemptionLevel = new ExemptionLevel(UUID.generateUUID(), personal, personal.getExemptionLevel(), currentTime, null, personal.getExemptionLevelUrlImg());
+                incomeService.save(income);
+                exemptionLevelService.save(exemptionLevel);
                 return ResponseEntity.status(HttpStatus.OK).body("Declaration success");
-            }else {
+            } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Can't declaration");
             }
 
@@ -79,7 +79,6 @@ public class PersonalRestController {
     @GetMapping("/calculate_Insurance/{insurance_code}")
     public ResponseEntity<?> calculateInsurance(@PathVariable("insurance_code") String insuranceCode, HttpServletRequest request) {
         String insuranceCodeCheck = jwtService.getUsernameFromJwt(request);
-        long amountToPay = 0;
         if (insuranceCodeCheck == null) {
             return ResponseEntity.badRequest().body("Can't find the user");
         }
@@ -87,29 +86,61 @@ public class PersonalRestController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Unable to view insurance calculation");
         }
         Personal personal = personalService.findByInsuranceCode(insuranceCode);
-        if (personal.getTypeInsurance().equals(TypeInsurance.NONE)) {
+        if (!personal.getTypeInsurance().equals(TypeInsurance.VOLUNTARY)) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("The user has not declared insurance");
         }
-        if (personal.isForeigner()) {
-            List<InsurancePayment> insurancePaymentList = insurancePaymentService.RetrieveUnpaidInvoicesIndividually(insuranceCode);
-            if(insurancePaymentList==null){
-                InsurancePayment insurancePayment = new InsurancePayment();
-
-            }else {
-
-            }
-
-            return ResponseEntity.ok().body("");
+        InsurancePayment insurancePayment = insurancePaymentService.findFirstByPersonalAndIsPayment(personal, true);
+        Date beginAt;
+        if (insurancePayment == null) {
+            beginAt = personal.getBeginAt();
         } else {
-            List<InsurancePayment> insurancePaymentList = insurancePaymentService.RetrieveUnpaidInvoicesIndividually(insuranceCode);
-            if(insurancePaymentList==null){
-                InsurancePayment insurancePayment = new InsurancePayment();
-
-            }else{
-
+            List<MonthPayment> monthPayments = monthPaymentService.getMonthPaymentByInsurancePayment(insurancePayment);
+            beginAt = monthPayments.get(0).getMonth();
+            for (MonthPayment mp : monthPayments) {
+                if (beginAt.before(mp.getMonth())) {
+                    beginAt = mp.getMonth();
+                }
             }
-            return ResponseEntity.ok().body("");
         }
+        //----------------------------------------------
+        Date currentTime = new Date(System.currentTimeMillis());
+        List<Date> dateList = new ArrayList<>();
+        Date check = beginAt;
+        while (beginAt.before(currentTime)) {
+            check = new Date(check.getTime() + 1000 * 60 * 60 * 24);
+            dateList.add(check);
+        }
+        Date lastDate = dateList.get(dateList.size() - 1);
+        if (lastDate.after(currentTime)) dateList.remove(lastDate);
+        int months = dateList.size();
+        int missingMonths = personal.getTimeMethodPayment() % months;
+        if (missingMonths != 0) {
+            int compensateMonths = personal.getTimeMethodPayment() - missingMonths;
+            for (int i = 0; i < compensateMonths; i++) {
+                check = new Date(check.getTime() + 1000 * 60 * 60 * 24);
+                dateList.add(check);
+            }
+        }
+        //------------------------------------
+        List<MonthPayment> monthPaymentList = new ArrayList<>();
+        InsurancePayment insurancePaymentNew = new InsurancePayment(UUID.generateUUID(),personal,0,false);
+        double monthPayment = 0;
+        for (Date date : dateList) {
+            Time currTime = new Time(date.getTime());
+            Income income = incomeService.getByPersonalInTime(personal, currTime);
+            ExemptionLevel exemptionLevel = exemptionLevelService.findByPersonalInTime(personal,currTime);
+            monthPayment += 0.22 * income.getIncome() * (1 - exemptionLevel.getExemptionLevel());
+            MonthPayment monthPaymentNew = new MonthPayment(UUID.generateUUID(),income,exemptionLevel, personal.getTimeMethodPayment(), new java.sql.Date(System.currentTimeMillis()),insurancePaymentNew);
+            monthPaymentList.add(monthPaymentNew);
+            monthPaymentService.save(monthPaymentNew);
+
+        }
+        insurancePaymentNew.setTotalPayment((long) monthPayment);
+        insurancePaymentNew.setMonthPaymentList(monthPaymentList);
+        insurancePaymentService.save(insurancePaymentNew);
+
+//
+        return ResponseEntity.ok().body(insurancePaymentNew);
 
     }
 
