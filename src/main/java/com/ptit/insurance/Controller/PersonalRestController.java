@@ -110,7 +110,8 @@ public class PersonalRestController {
             check = new Date(check.getTime() + 1000 * 60 * 60 * 24);
             dateList.add(check);
         }
-        Date lastDate = dateList.get(dateList.size() - 1);
+        int dateListSize = dateList.size();
+         Date lastDate = dateList.get(dateListSize);
         if (lastDate.after(currentTime)) dateList.remove(lastDate);
         int months = dateList.size();
         int missingMonths = personal.getTimeMethodPayment() % months;

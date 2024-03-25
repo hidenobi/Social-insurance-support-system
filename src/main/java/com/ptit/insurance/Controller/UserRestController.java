@@ -111,7 +111,7 @@ public class UserRestController {
         if (uCheck == null)
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         if (user.getPassword().equals(uCheck.getPassword())) {
-            if (!user.isActive()) {
+            if (!uCheck.isActive()) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User account is not activated");
             }
             User userJWT = userService.findUserByInsuranceCode(user.getInsuranceCode());

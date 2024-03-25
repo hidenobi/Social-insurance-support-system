@@ -10,7 +10,7 @@ import java.util.Date;
 
 @Repository
 public interface IncomeRepository extends JpaRepository<Income,String > {
-    @Query("select i from Income i where i.personal=:personal and :date between i.beginAt and i.endAt")
+    @Query("select i from Income i where i.personal=:personal and :date between i.beginAt and i.endAt or :date > i.beginAt")
     Income findFirstByPersonalInTime(Personal personal, Date date);
 
 
