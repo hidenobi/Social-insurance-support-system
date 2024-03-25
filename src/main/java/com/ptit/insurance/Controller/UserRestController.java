@@ -3,14 +3,19 @@ package com.ptit.insurance.Controller;
 
 import com.ptit.insurance.Lib.EmailSender;
 import com.ptit.insurance.Lib.newPassword;
-import com.ptit.insurance.Model.*;
-import com.ptit.insurance.Service.*;
+import com.ptit.insurance.Model.InsuranceAgency;
+import com.ptit.insurance.Model.Personal;
+import com.ptit.insurance.Model.Token;
+import com.ptit.insurance.Model.User;
+import com.ptit.insurance.Service.InsuranceAgencyService;
+import com.ptit.insurance.Service.JwtService;
+import com.ptit.insurance.Service.PersonalService;
+import com.ptit.insurance.Service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 
 import java.util.Date;
 import java.util.List;
@@ -112,17 +117,18 @@ public class UserRestController {
         if (uCheck == null)
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         if (user.getPassword().equals(uCheck.getPassword())) {
-            System.out.println("TAG:"+user.isActive());
+            System.out.println("TAG:" + user.isActive());
             if (!uCheck.isActive()) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User account is not activated");
             }
             User userJWT = userService.findUserByInsuranceCode(user.getInsuranceCode());
+            Personal personal = personalService.findByInsuranceCode(user.getInsuranceCode());
             String JWT = this.jwtService.generateToken(userJWT);
             System.out.println(user.getInsuranceCode() + " token: " + JWT);
-            Token token = new Token(JWT, new Date(System.currentTimeMillis() + (1000 * 60 * 24)));
+            Token token = new Token(JWT, new Date(System.currentTimeMillis() + (1000 * 60 * 24)), personal.getFullName());
             return ResponseEntity.status(HttpStatus.OK).body(token);
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Wrong password");
     }
 
     @GetMapping("/userinfo")

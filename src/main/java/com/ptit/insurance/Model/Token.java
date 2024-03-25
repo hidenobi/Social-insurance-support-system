@@ -16,5 +16,7 @@ public class Token {
     private String value;
     @NotNull
     private Date end;
+    @NotNull
+    private String name;
 
 }
