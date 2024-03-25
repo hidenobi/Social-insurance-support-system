@@ -95,6 +95,7 @@ public class UserRestController {
     @PostMapping("/change_password")
     public ResponseEntity<String> changePassword(@RequestBody User user) {
         try {
+            System.out.println(user.getInsuranceCode());
             if (userService.findUserByInsuranceCode(user.getInsuranceCode()) == null) {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body("The user does not exist in the database ");
             }
@@ -111,7 +112,8 @@ public class UserRestController {
         if (uCheck == null)
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
         if (user.getPassword().equals(uCheck.getPassword())) {
-            if (!user.isActive()) {
+            System.out.println("TAG:"+user.isActive());
+            if (!uCheck.isActive()) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User account is not activated");
             }
             User userJWT = userService.findUserByInsuranceCode(user.getInsuranceCode());

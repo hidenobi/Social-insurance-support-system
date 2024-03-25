@@ -13,6 +13,6 @@ public interface InsurancePaymentRepository extends JpaRepository<InsurancePayme
     @Query("select ip from InsurancePayment ip where ip.personal.insuranceCode = :insuranceCode and ip.isPayment = :isPayment")
     List<InsurancePayment> retrieveUnpaidInvoicesIndividually(String insuranceCode, boolean isPayment);
     InsurancePayment findFirstById(String id);
-    InsurancePayment findFirstByPersonalAndPaymentIs(Personal personal,boolean isPayment);
+    InsurancePayment findFirstByPersonalAndIsPayment(Personal personal,boolean isPayment);
 
 }
