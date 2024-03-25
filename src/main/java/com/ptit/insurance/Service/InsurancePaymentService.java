@@ -23,7 +23,7 @@ public class InsurancePaymentService {
     }
 
     public InsurancePayment findFirstByPersonalAndIsPayment(Personal personal, boolean isPayment){
-        InsurancePayment insurancePayment = insurancePaymentRepository.findFirstByPersonalAndPaymentIs(personal,isPayment);
+        InsurancePayment insurancePayment = insurancePaymentRepository.findFirstByPersonalAndIsPayment(personal,isPayment);
         return insurancePayment;
     }
 
