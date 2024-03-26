@@ -6,8 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
-import java.sql.Date;
-import java.sql.Time;
+import java.util.Date;
+
 
 @Data
 @AllArgsConstructor
@@ -24,8 +24,8 @@ public class ExemptionLevel {
     private Personal personal;
     private float exemptionLevel;
     @NotNull
-    private Time beginAt;
-    private Time endAt;
+    private Date beginAt;
+    private Date endAt;
     @NotNull
     private String urlImg;
 }

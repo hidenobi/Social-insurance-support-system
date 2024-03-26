@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Time;
-import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -60,7 +60,7 @@ public class PersonalRestController {
             }
 
             if (personalService.Save(personal)) {
-                Time currentTime = new Time(personal.getBeginAt().getTime());
+                Date currentTime = personal.getBeginAt();
                 Income income = new Income(UUID.generateUUID(), personal, personal.getIncome(), currentTime, null);
                 ExemptionLevel exemptionLevel = new ExemptionLevel(UUID.generateUUID(), personal, personal.getExemptionLevel(), currentTime, null, personal.getExemptionLevelUrlImg());
                 incomeService.save(income);
@@ -78,70 +78,89 @@ public class PersonalRestController {
 
     @GetMapping("/calculate_Insurance/{insurance_code}")
     public ResponseEntity<?> calculateInsurance(@PathVariable("insurance_code") String insuranceCode, HttpServletRequest request) {
-        String insuranceCodeCheck = jwtService.getUsernameFromJwt(request);
-        if (insuranceCodeCheck == null) {
-            return ResponseEntity.badRequest().body("Can't find the user");
-        }
-        if (!insuranceCode.equals(insuranceCodeCheck)) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Unable to view insurance calculation");
-        }
-        Personal personal = personalService.findByInsuranceCode(insuranceCode);
-        if (!personal.getTypeInsurance().equals(TypeInsurance.VOLUNTARY)) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("The user has not declared insurance");
-        }
-        InsurancePayment insurancePayment = insurancePaymentService.findFirstByPersonalAndIsPayment(personal, true);
-        Date beginAt;
-        if (insurancePayment == null) {
-            beginAt = personal.getBeginAt();
-        } else {
-            List<MonthPayment> monthPayments = monthPaymentService.getMonthPaymentByInsurancePayment(insurancePayment);
-            beginAt = monthPayments.get(0).getMonth();
-            for (MonthPayment mp : monthPayments) {
-                if (beginAt.before(mp.getMonth())) {
-                    beginAt = mp.getMonth();
+        try {
+            String insuranceCodeCheck = jwtService.getUsernameFromJwt(request);
+            if (insuranceCodeCheck == null) {
+                return ResponseEntity.badRequest().body("Can't find the user");
+            }
+            if (!insuranceCode.equals(insuranceCodeCheck)) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Unable to view insurance calculation");
+            }
+            Personal personal = personalService.findByInsuranceCode(insuranceCode);
+            System.out.println("TAG-calculate_Insurance: " + personal.getTypeInsurance());
+            if (!personal.getTypeInsurance().equals(TypeInsurance.VOLUNTARY)) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("The user has not declared insurance");
+            }
+            InsurancePayment insurancePayment = insurancePaymentService.findFirstByPersonalAndIsPayment(personal, true);
+            Date beginAt;
+            if (insurancePayment == null) {
+                beginAt = personal.getBeginAt();
+            } else {
+                List<MonthPayment> monthPayments = monthPaymentService.getMonthPaymentByInsurancePayment(insurancePayment);
+                beginAt = monthPayments.get(0).getMonth();
+                for (MonthPayment mp : monthPayments) {
+                    if (beginAt.before(mp.getMonth())) {
+                        beginAt = mp.getMonth();
+                    }
                 }
             }
-        }
-        //----------------------------------------------
-        Date currentTime = new Date(System.currentTimeMillis());
-        List<Date> dateList = new ArrayList<>();
-        Date check = beginAt;
-        while (beginAt.before(currentTime)) {
-            check = new Date(check.getTime() + 1000 * 60 * 60 * 24);
-            dateList.add(check);
-        }
-        Date lastDate = dateList.get(dateList.size() - 1);
-        if (lastDate.after(currentTime)) dateList.remove(lastDate);
-        int months = dateList.size();
-        int missingMonths = personal.getTimeMethodPayment() % months;
-        if (missingMonths != 0) {
-            int compensateMonths = personal.getTimeMethodPayment() - missingMonths;
-            for (int i = 0; i < compensateMonths; i++) {
-                check = new Date(check.getTime() + 1000 * 60 * 60 * 24);
-                dateList.add(check);
-            }
-        }
-        //------------------------------------
-        List<MonthPayment> monthPaymentList = new ArrayList<>();
-        InsurancePayment insurancePaymentNew = new InsurancePayment(UUID.generateUUID(),personal,0,false);
-        double monthPayment = 0;
-        for (Date date : dateList) {
-            Time currTime = new Time(date.getTime());
-            Income income = incomeService.getByPersonalInTime(personal, currTime);
-            ExemptionLevel exemptionLevel = exemptionLevelService.findByPersonalInTime(personal,currTime);
-            monthPayment += 0.22 * income.getIncome() * (1 - exemptionLevel.getExemptionLevel());
-            MonthPayment monthPaymentNew = new MonthPayment(UUID.generateUUID(),income,exemptionLevel, personal.getTimeMethodPayment(), new java.sql.Date(System.currentTimeMillis()),insurancePaymentNew);
-            monthPaymentList.add(monthPaymentNew);
-            monthPaymentService.save(monthPaymentNew);
+            //----------------------------------------------
+            Date currentTime = new Date(System.currentTimeMillis());
 
-        }
-        insurancePaymentNew.setTotalPayment((long) monthPayment);
-        insurancePaymentNew.setMonthPaymentList(monthPaymentList);
-        insurancePaymentService.save(insurancePaymentNew);
+            List<Date> dateList = getMonthsBetween(beginAt, currentTime,personal.getTimeMethodPayment());
+
+            //------------------------------------
+            List<MonthPayment> monthPaymentList = new ArrayList<>();
+            InsurancePayment insurancePaymentNew = new InsurancePayment(UUID.generateUUID(), personal, 0, false);
+            insurancePaymentService.save(insurancePaymentNew);
+            double monthPayment = 0;
+            for (Date date : dateList) {
+                Income income = incomeService.getByPersonalInTime(personal, date);
+                ExemptionLevel exemptionLevel = exemptionLevelService.findByPersonalInTime(personal, date);
+                monthPayment += 0.22 * income.getIncome() * (1 - exemptionLevel.getExemptionLevel());
+                MonthPayment monthPaymentNew = new MonthPayment(UUID.generateUUID(), income, exemptionLevel, personal.getTimeMethodPayment(), date, insurancePaymentNew);
+                monthPaymentList.add(monthPaymentNew);
+                monthPaymentService.save(monthPaymentNew);
+
+            }
+            insurancePaymentNew.setTotalPayment((long) monthPayment);
+            insurancePaymentNew.setMonthPaymentList(monthPaymentList);
+            System.out.println("TAG-idInsurancePayment: " + insurancePaymentNew.getId());
+            insurancePaymentService.save(insurancePaymentNew);
 
 //
-        return ResponseEntity.ok().body(insurancePaymentNew);
+            return ResponseEntity.ok().body(insurancePaymentNew);
+        } catch (Exception e) {
+            System.out.println("TAG-error: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        }
 
     }
 
+    private static List<Date> getMonthsBetween(Date mStart, Date mEnd, int timePaymentMethod) {
+        List<YearMonth> monthsList = new ArrayList<>();
+        YearMonth start = YearMonth.of(mStart.getYear(), mStart.getMonth());
+        YearMonth end = YearMonth.of(mEnd.getYear(), mEnd.getMonth());
+        YearMonth current = start;
+        while (!current.isAfter(end)) {
+            monthsList.add(current);
+            current = current.plusMonths(1);
+        }
+
+        int monthBonus = 0;
+        int monthDismiss = monthsList.size() % timePaymentMethod;
+        if (monthDismiss != 0) {
+            monthBonus = timePaymentMethod - monthDismiss;
+        }
+        while ((monthBonus-- > 0)) {
+            monthsList.add(current);
+            current = current.plusMonths(1);
+        }
+        ArrayList<Date> answer = new ArrayList<>();
+        monthsList.forEach(yearMonth -> {
+            Date date = new Date(yearMonth.getYear(), yearMonth.getMonthValue(), 1);
+            answer.add(date);
+        });
+        return answer;
+    }
 }
