@@ -11,6 +11,6 @@ import java.util.List;
 
 @Repository
 public interface ExemptionLevelRepository extends JpaRepository<ExemptionLevel,String> {
-    @Query("select el from ExemptionLevel el where el.personal=:personal and :time between el.beginAt and el.endAt")
+    @Query("select el from ExemptionLevel el where el.personal=:personal and :time between el.beginAt and el.endAt or :time > el.beginAt")
     ExemptionLevel findFirstByPersonalInTime(Personal personal, Time time);
 }
