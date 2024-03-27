@@ -11,7 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Time;
+import java.time.LocalDate;
 import java.time.YearMonth;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -67,11 +69,14 @@ public class PersonalRestController {
                 exemptionLevelService.save(exemptionLevel);
                 return ResponseEntity.status(HttpStatus.OK).body("Declaration success");
             } else {
+                //TODO
+                System.out.println("Can't save personal");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Can't declaration");
             }
 
         } catch (Exception e) {
             System.out.println(e.getMessage());
+            //TODO
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Can't declaration");
         }
     }
@@ -107,37 +112,35 @@ public class PersonalRestController {
             //----------------------------------------------
             Date currentTime = new Date(System.currentTimeMillis());
 
-            List<Date> dateList = getMonthsBetween(beginAt, currentTime,personal.getTimeMethodPayment());
-
+            List<LocalDate> dateList = getMonthsBetween(beginAt, currentTime,personal.getTimeMethodPayment());
+            //TODO: cần sửa
             //------------------------------------
             List<MonthPayment> monthPaymentList = new ArrayList<>();
             InsurancePayment insurancePaymentNew = new InsurancePayment(UUID.generateUUID(), personal, 0, false);
-            insurancePaymentService.save(insurancePaymentNew);
+//            insurancePaymentService.save(insurancePaymentNew);
             double monthPayment = 0;
-            for (Date date : dateList) {
+            for (LocalDate date : dateList) {
                 Income income = incomeService.getByPersonalInTime(personal, date);
                 ExemptionLevel exemptionLevel = exemptionLevelService.findByPersonalInTime(personal, date);
                 monthPayment += 0.22 * income.getIncome() * (1 - exemptionLevel.getExemptionLevel());
-                MonthPayment monthPaymentNew = new MonthPayment(UUID.generateUUID(), income, exemptionLevel, personal.getTimeMethodPayment(), date, insurancePaymentNew);
-                monthPaymentList.add(monthPaymentNew);
-                monthPaymentService.save(monthPaymentNew);
 
+                MonthPayment monthPaymentNew = new MonthPayment(UUID.generateUUID(), income, exemptionLevel, personal.getTimeMethodPayment(), new Date(date.toEpochDay()), insurancePaymentNew);
+                monthPaymentList.add(monthPaymentNew);
+//                monthPaymentService.save(monthPaymentNew);
             }
             insurancePaymentNew.setTotalPayment((long) monthPayment);
             insurancePaymentNew.setMonthPaymentList(monthPaymentList);
+//            insurancePaymentService.save(insurancePaymentNew);
             System.out.println("TAG-idInsurancePayment: " + insurancePaymentNew.getId());
-            insurancePaymentService.save(insurancePaymentNew);
-
-//
-            return ResponseEntity.ok().body(insurancePaymentNew);
+            return ResponseEntity.status(HttpStatus.OK).body(insurancePaymentNew);
         } catch (Exception e) {
-            System.out.println("TAG-error: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+            System.out.println("TAG-error: " + e.getCause());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getCause());
         }
 
     }
 
-    private static List<Date> getMonthsBetween(Date mStart, Date mEnd, int timePaymentMethod) {
+    private static List<LocalDate> getMonthsBetween(Date mStart, Date mEnd, int timePaymentMethod) {
         List<YearMonth> monthsList = new ArrayList<>();
         YearMonth start = YearMonth.of(mStart.getYear(), mStart.getMonth());
         YearMonth end = YearMonth.of(mEnd.getYear(), mEnd.getMonth());
@@ -156,9 +159,9 @@ public class PersonalRestController {
             monthsList.add(current);
             current = current.plusMonths(1);
         }
-        ArrayList<Date> answer = new ArrayList<>();
+        ArrayList<LocalDate> answer = new ArrayList<>();
         monthsList.forEach(yearMonth -> {
-            Date date = new Date(yearMonth.getYear(), yearMonth.getMonthValue(), 1);
+            LocalDate date = LocalDate.of(yearMonth.getYear(), yearMonth.getMonthValue(), 1);
             answer.add(date);
         });
         return answer;

@@ -1,10 +1,9 @@
 package com.ptit.insurance.Model;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
@@ -15,6 +14,9 @@ import java.util.Date;
 @AllArgsConstructor
 @Table(name = "monthpayment")
 @Entity
+@ToString
+@Setter
+@Getter
 public class MonthPayment {
     @Id
     @NotNull
@@ -33,5 +35,6 @@ public class MonthPayment {
     @JoinColumn(name = "insurancePayment")
     @ManyToOne
     @NotNull
+    @JsonBackReference
     private InsurancePayment insurancePayment;
 }

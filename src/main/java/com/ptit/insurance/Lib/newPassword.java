@@ -11,7 +11,9 @@ public class newPassword {
     public static String getNewPassword(Personal personal) {
         Random random = new Random();
         String newPassword = "";
-        newPassword += LocalTime.now().toString().replace(":", random.nextInt() + "");
+        for(int i=0;i<9;i++){
+            newPassword+=random.nextInt(9)+"";
+        }
         String fullName = personal.getFullName().toUpperCase();
         newPassword += fullName.charAt(0);
         for (int i = 1; i < fullName.length(); i++) {

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Time;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -25,16 +26,23 @@ public class IncomeService {
         }
     }
 
-    public Income getByPersonalInTime(Personal personal, Date time) {
+    public Income getByPersonalInTime(Personal personal, LocalDate time) {
+        System.out.println(time);
         List<Income> incomes = incomeRepository.findAll();
+        for(Income income : incomes){
+            System.out.println(income);
+        }
         for (int i = 0; i < incomes.size(); i++) {
             Income incomeTmp = incomes.get(i);
+            System.out.println(incomeTmp.getBeginAt()+" "+incomeTmp.getEndAt());
+            Date beginAt = incomeTmp.getBeginAt();
+            Date endDat = incomeTmp.getEndAt();
             boolean isPersonal = incomeTmp.getPersonal().getInsuranceCode().equals(personal.getInsuranceCode());
             boolean isTimeBetween = false;
-            if (incomeTmp.getEndAt() == null) {
-                isTimeBetween = time.after(incomeTmp.getBeginAt()) || time.equals(incomeTmp.getBeginAt());
+            if (endDat == null) {
+                isTimeBetween = time.isAfter(LocalDate.of(beginAt.getYear(), beginAt.getMonth(),1) ) || time.equals(LocalDate.of(beginAt.getYear(), beginAt.getMonth(),1));
             } else {
-                isTimeBetween = (time.after(incomeTmp.getBeginAt()) || time.equals(incomeTmp.getBeginAt())) && time.before(incomeTmp.getEndAt());
+                isTimeBetween = (time.isAfter(LocalDate.of(beginAt.getYear(), beginAt.getMonth(),1)) || time.equals(LocalDate.of(beginAt.getYear(), beginAt.getMonth(),1))) && (time.isBefore(LocalDate.of(endDat.getYear(), endDat.getMonth(),1))||time.equals(LocalDate.of(endDat.getYear(), endDat.getMonth(),1)));
             }
             if (isPersonal && isTimeBetween) return incomeTmp;
         }

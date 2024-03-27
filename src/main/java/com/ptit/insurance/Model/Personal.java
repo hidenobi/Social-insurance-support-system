@@ -126,6 +126,9 @@ public class Personal {
             System.out.println("Address is empty");
             return false;
         }
+        if(getInsuranceAgency() == null){
+            return false;
+        }
         return true;
     }
 

@@ -1,5 +1,6 @@
 package com.ptit.insurance.Model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,6 +22,7 @@ public class Income {
     @JoinColumn(name = "insuranceCode")
     @ManyToOne
     @NotNull
+    @JsonIgnore
     private Personal personal;
     @NotNull
     private int income;
